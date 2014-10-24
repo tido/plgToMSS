@@ -1,0 +1,12 @@
+{
+   Initialize "() {
+   //$module(foo.mss)
+    1 + 3
+   }"
+
+   Madness "() {
+   //$module(foo.mss)
+      foo = "one two"
+   }"
+
+}

@@ -6,14 +6,17 @@ var mkdirp = require('mkdirp');
 function main(args) {
 
   var data = '';
+  var currentModule = '';
+  var filesWritten = {};
   var level = 0;
   var globals = [];
 
-  var functionRegex = /^\s+(\w+)\s+"(\(.*\))\s+{/;
+  var functionRegex = /^\s+(\w+)\s+"(\(.*\))\s+\{/;
   var endFunctionRegex = /^(.*)}"$/;
+  var moduleLineRegex = /^\s*\/\/\$module\(([\w.]+)\)/;
 
   var dialogRegex = /^\s*(\w+)\s+"Dialog"\s*$/;
-  var startDialogSegmentRegex = /^\s*{/;
+  var startDialogSegmentRegex = /^\s*\{/;
   var endDialogSegmentRegex = /^\s*}/;
 
   var filename = args[0];
@@ -50,7 +53,6 @@ function main(args) {
     if (func) {
       console.log('function ' + func[1] + func[2]);
       data = 'function ' + func[1] + func[2] + ' ' + '{\n';
-      data += '//$module(' + func[1] + '.mss)\n';
       var filename = path.join(outputdir, func[1] + '.mss');
       processFn = processFunctionLineFunc(filename);
       return;
@@ -61,8 +63,7 @@ function main(args) {
       console.log('dialog ' + dialog[1]);
       data = line;
       data += '\n';
-      var filename = path.join(outputdir, 'dialog', dialog[1] + '.msd');
-      processFn = processDialogLineFunc(filename);
+      processFn = processDialogLineFunc(path.join(outputdir, 'dialog', dialog[1] + '.msd'));
       return;
     }
 
@@ -87,15 +88,37 @@ function main(args) {
 
   function processFunctionLineFunc(filename) {
     return function (line) {
+      var isModuleLine = moduleLineRegex.exec(line);
+      if (isModuleLine) {
+        console.log(isModuleLine);
+        currentModule = path.join(outputdir, isModuleLine[1]);
+        data += line;
+        data += '\n';
+        return;
+      }
+
       var isEndFunc = endFunctionRegex.exec(line);
       if (isEndFunc) {
         data += isEndFunc[1] + '\n}  //$end\n';
-        fs.writeFileSync(filename, data, {encoding: 'utf8'});
+        if (currentModule) {
+          var opts = {encoding: 'utf8'};
+          if (filesWritten[currentModule]) {
+            opts.flag = 'a';
+          }
+          fs.writeFileSync(currentModule, data, opts);
+          filesWritten[currentModule] = true;
+          currentModule = '';
+        } else {
+          console.log(filename);
+          fs.writeFileSync(filename, data, {encoding: 'utf8'});
+          filesWritten[filename] = true;
+        }
         processFn = processLine;
-      } else {
-        data += line;
-        data += '\n';
+        return;
       }
+
+      data += line;
+      data += '\n';
     }
   }
 }

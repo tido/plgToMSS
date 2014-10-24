@@ -24,12 +24,27 @@ Writes GLOBAL.mss, which contains all global data definitions
 Changes the function declaration to Javascript style
 ```javascript
 function Initialize () {
-//$module('Initialize.mss')
     ...
 }  //$end
 ```
 
-Adds module and end tags for roundtripping
+Adds end tags for round-tripping
+
+To put several functions in a single file, add a module directive
+
+```javascript
+function reverse (s) {
+    //$module(util.mss)
+    ...
+}  //$end
+
+function capitalize (s) {
+    //$module(util.mss)
+    ...
+}  //$end
+```
+
+The parser will write both methods to the file 'util.mss', preserving the module directives.
 
 ## buildPlg
 ```
@@ -38,5 +53,11 @@ node buildPlg.js <directory> <output file>
 
 Inverse of parsePjg, which combines all the .mss/.msd files in the generated structure pointed to by
 <directory> and writes an output file which can then be copied into the Sibelius plugins location
+
+If you have created the files outside of Sibelius, please ensure that functions close as in the example
+above, with a close brace and a //$end directive.
+
+NB default encoding for plgToMSS is utf8, which Sibelius handles just fine.
+
 
 

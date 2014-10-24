@@ -20,14 +20,20 @@ function main(args) {
 
   var dialogsDir = fs.readdirSync(dialogDirectory);
 
-  var funcRegex = /^function\s*(\w+)(\(.*\))\s*{/;
+  var funcRegex = /^function\s*(\w+)(\(.*\))\s*\{/;
+  var moduleLineRegex = /^\s*\/\/\$module\(([\w]+\.mss)\)/;
 
-  addFileToOutput(globals);
+  try {
+    addFileToOutput(globals);
+  } catch (e) {
+    // NOP
+  }
+
   dialogsDir
     .filter(function(name) { return name.match(/.+\.msd$/)})
     .forEach(function(name) { addFileToOutput(path.join(dialogDirectory, name))});
 
-  dir = dir.filter(function(name) { return name.match(/[a-z].+\.mss$/)})
+  dir = dir.filter(function(name) { return name.match(/[a-z].+\.mss$/)});
 
   async.each(dir, function(name, cb) { addMethodFileToOutput(path.join(directory, name), cb)}, end);
 
@@ -38,15 +44,21 @@ function main(args) {
   }
 
   function addFileToOutput(filename) {
-    console.log('-> ' + filename)
+    console.log('-> ' + filename);
     var data = fs.readFileSync(filename, {encoding: 'utf-8'});
-    output += data;
-    output += '\n';
+    if (data.length) {
+      output += data;
+      output += '\n';
+    }
   }
 
   function addMethodFileToOutput(filename, cb) {
-    var moduleName = path.basename(filename);
-    var data = '';
+    var proposedModuleName = path.basename(filename, '.mss');
+
+    var head = '';
+    var moduleName = '';
+    var module = '';
+    var body = '';
     var rd = readline.createInterface({
       input: fs.createReadStream(filename),
       output: process.stdout,
@@ -58,20 +70,25 @@ function main(args) {
       if (func) {
         var mssFuncLine = '\t' + func[1] + ' "' + func[2] + ' {\n';
         console.log('function: ' + func[1]);
-        data += mssFuncLine;
-        var moduleLine = '//$module(' + moduleName + ')\n';
-        data += moduleLine;
+        head = mssFuncLine;
+        if (func[1] !== proposedModuleName) {
+          module = '//$module(' + proposedModuleName + '.mss)\n'
+        }
       } else if(line.match(/^}\s*\/\/\$end$/)) {
-        data = data + '}"\n';
-      } else if (!line.match(/^\s*\/\/\$/)) {
-        data += line;
-        data += '\n';
+        body = body + '}"\n';
+        output += head;
+        if (module.length) output += module;
+        output += body;
+        head = module = body = '';
+      } else if (moduleName = moduleLineRegex.exec(line)) {
+        module = '//$module(' + moduleName[1] + ')\n'
+      } else {
+        body += line;
+        body += '\n';
       }
     });
 
     rd.on('close', function() {
-      data += '\n'
-      output += data;
       console.log('done: ' + filename);
       cb(false);
     });
