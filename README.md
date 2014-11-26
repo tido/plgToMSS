@@ -6,8 +6,13 @@ in a world with nice syntax highlighting and source-controlled
 separately) and the monolithic Sibelius .plg file format.
 
 ## Install
+
+Install node! http://nodejs.org/
+
+Clone/pull the repo, then cd to the repo directory, and
+
 ```
-$ npm install
+$ sudo npm install -g
 ```
 
 ## parsePlg.js
@@ -15,7 +20,8 @@ $ npm install
 node parsePlg.js <PLG path/file> <targetDirectory> <encoding>
 ```
 
-Encoding is optional (defaults to utf8, for a plugin built and edited in Sibelius you'll likely need utf16le)
+Encoding is optional (defaults to utf8, for a plugin initially built and edited in Sibelius you'll likely need utf16le. The
+converter writes back to utf8, which works just fine for subsequent import into Sibelius)
 
 Writes a .mss file for each function into targetDirectory, and a .msd file for each dialog into a dialog subdirectory.
 
@@ -30,7 +36,7 @@ function Initialize () {
 
 Adds end tags for round-tripping
 
-To put several functions in a single file, add a module directive
+To move or write several functions in a single file, add a module directive
 
 ```javascript
 function reverse (s) {
