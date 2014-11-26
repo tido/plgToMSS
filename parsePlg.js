@@ -26,6 +26,11 @@ function main(args) {
   var outputdir = args[1];
   var encoding = args[2] || 'utf8';
 
+  if (!filename || !outputdir || !encoding) {
+    console.log("Usage: parsePlg plg-filename output-dir encoding" );
+    process.exit(1);
+  }
+
   mkdirp.sync(outputdir);
   mkdirp.sync(path.join(outputdir, 'dialog'));
 

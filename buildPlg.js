@@ -13,6 +13,12 @@ function main(args) {
 
   var directory = args[0];
   var outputFileName = args[1];
+
+  if (!directory || !outputFileName) {
+    console.log("Usage: buildPlg directory plg-filename" );
+    process.exit(1);
+  }
+
   var dir = fs.readdirSync(directory);
 
   var output = '{\n';
