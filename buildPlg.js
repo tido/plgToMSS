@@ -8,6 +8,8 @@ var readline = require('readline');
 var async = require('async');
 var iconv = require('iconv-lite');
 
+var e = require('gumyen');
+var OUTPUT_ENCODING = 'utf16le';
 
 function main(args) {
 
@@ -47,13 +49,16 @@ function main(args) {
 
   function end() {
     output += '}\n';
-    fs.writeFileSync(outputFileName, iconv.encode(output, 'utf8'));
+    fs.writeFileSync(outputFileName, iconv.encode(output, OUTPUT_ENCODING));
     console.log('written plugin code to ' + outputFileName);
   }
 
   function addFileToOutput(filename) {
     console.log('-> ' + filename);
-    var data = fs.readFileSync(filename, {encoding: 'utf-8'});
+
+    var encoding = e.encodingSync(filename);
+    var data = fs.readFileSync(filename, {encoding: encoding});
+
     if (data.length) {
       output += data;
       output += '\n';
@@ -61,6 +66,7 @@ function main(args) {
   }
 
   function addMethodFileToOutput(filename, cb) {
+    var encoding = e.encodingSync(filename);
     var proposedModuleName = path.basename(filename, '.mss');
 
     var head = '';
@@ -68,7 +74,7 @@ function main(args) {
     var module = '';
     var body = '';
     var rd = readline.createInterface({
-      input: fs.createReadStream(filename),
+      input: fs.createReadStream(filename, {encoding: encoding}),
       output: process.stdout,
       terminal: false
     });

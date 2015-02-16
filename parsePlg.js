@@ -6,6 +6,8 @@ var path = require('path');
 var readline = require('readline');
 var mkdirp = require('mkdirp');
 
+var e = require('gumyen');
+
 function main(args) {
 
   var data = '';
@@ -24,15 +26,16 @@ function main(args) {
 
   var filename = args[0];
   var outputdir = args[1];
-  var encoding = args[2] || 'utf8';
 
-  if (!filename || !outputdir || !encoding) {
-    console.log("Usage: parsePlg plg-filename output-dir encoding" );
+  if (!filename || !outputdir) {
+    console.log("Usage: parsePlg plg-filename output-dir" );
     process.exit(1);
   }
 
   mkdirp.sync(outputdir);
   mkdirp.sync(path.join(outputdir, 'dialog'));
+
+  var encoding = e.encodingSync(filename);
 
   var rd = readline.createInterface({
     input: fs.createReadStream(filename, {encoding: encoding}),
@@ -53,7 +56,7 @@ function main(args) {
   });
 
   function writeGlobals() {
-    fs.writeFileSync(path.join(outputdir, 'GLOBALS.mss'), globals.join('\n'), {encoding: 'utf8'});
+    fs.writeFileSync(path.join(outputdir, 'GLOBALS.mss'), globals.join('\n'), {encoding: encoding});
   }
 
   function processLine(line) {
@@ -88,7 +91,7 @@ function main(args) {
       data += line;
       data += '\n';
       if (level === 0) {
-        fs.writeFileSync(filename, data, {encoding: 'utf8'});
+        fs.writeFileSync(filename, data, {encoding: encoding});
         processFn = processLine;
       }
     }
@@ -98,7 +101,6 @@ function main(args) {
     return function (line) {
       var isModuleLine = moduleLineRegex.exec(line);
       if (isModuleLine) {
-        console.log(isModuleLine);
         currentModule = path.join(outputdir, isModuleLine[1]);
         data += line;
         data += '\n';
@@ -109,7 +111,7 @@ function main(args) {
       if (isEndFunc) {
         data += isEndFunc[1] + '\n}  //$end\n';
         if (currentModule) {
-          var opts = {encoding: 'utf8'};
+          var opts = {encoding: encoding};
           if (filesWritten[currentModule]) {
             opts.flag = 'a';
           }
@@ -118,7 +120,7 @@ function main(args) {
           currentModule = '';
         } else {
           console.log(filename);
-          fs.writeFileSync(filename, data, {encoding: 'utf8'});
+          fs.writeFileSync(filename, data, {encoding: encoding});
           filesWritten[filename] = true;
         }
         processFn = processLine;
