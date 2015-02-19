@@ -1,12 +1,15 @@
 #!/usr/bin/env node
-'use strict'
+'use strict';
 
 var fs = require('fs');
 var path = require('path');
 var readline = require('readline');
 var mkdirp = require('mkdirp');
-
+var iconv = require('iconv-lite');
 var e = require('gumyen');
+
+var OUTPUT_ENCODING = 'utf16le';
+var UTF16LE_BOM = [0xff, 0xfe];
 
 function main(args) {
 
@@ -36,6 +39,7 @@ function main(args) {
   mkdirp.sync(path.join(outputdir, 'dialog'));
 
   var encoding = e.encodingSync(filename);
+  console.log('Processing: %s (%s)', filename, encoding);
 
   var rd = readline.createInterface({
     input: fs.createReadStream(filename, {encoding: encoding}),
@@ -56,7 +60,7 @@ function main(args) {
   });
 
   function writeGlobals() {
-    fs.writeFileSync(path.join(outputdir, 'GLOBALS.mss'), globals.join('\n'), {encoding: encoding});
+    writeUTF16(path.join(outputdir, 'GLOBALS.mss'), globals.join('\n'));
   }
 
   function processLine(line) {
@@ -91,7 +95,7 @@ function main(args) {
       data += line;
       data += '\n';
       if (level === 0) {
-        fs.writeFileSync(filename, data, {encoding: encoding});
+        writeUTF16(filename, data);
         processFn = processLine;
       }
     }
@@ -115,12 +119,12 @@ function main(args) {
           if (filesWritten[currentModule]) {
             opts.flag = 'a';
           }
-          fs.writeFileSync(currentModule, data, opts);
+          writeUTF16(filename, data, opts);
           filesWritten[currentModule] = true;
           currentModule = '';
         } else {
           console.log(filename);
-          fs.writeFileSync(filename, data, {encoding: encoding});
+          writeUTF16(filename, data);
           filesWritten[filename] = true;
         }
         processFn = processLine;
@@ -131,6 +135,11 @@ function main(args) {
       data += '\n';
     }
   }
+}
+
+function writeUTF16(filename, data, opts) {
+  var buffer = iconv.encode(data, OUTPUT_ENCODING);
+  fs.writeFileSync(filename, Buffer.concat([new Buffer(UTF16LE_BOM), buffer]), opts);
 }
 
 main(process.argv.slice(2));

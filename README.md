@@ -1,9 +1,9 @@
 # plgToMSS
 
-A pair of node scripts to roundtrip Sibelius plugin development
-between a sensible world (small text files, which can be edited
-in a world with nice syntax highlighting and source-controlled
-separately) and the monolithic Sibelius .plg file format.
+A set of node scripts to roundtrip Sibelius plugin development
+between a sensible world (small text files, which can be edited,
+in a tool of your choice, with nice syntax highlighting, and which
+source-controlled separately) and the monolithic Sibelius .plg file format.
 
 ## Install
 
@@ -15,17 +15,35 @@ Clone/pull the repo, then cd to the repo directory, and
 $ sudo npm install -g
 ```
 
-## parsePlg.js
+## Script summary
+
+## initPlg
+Run in an empty directory. Initialises the directory for plugin development, with the following
+structure
 ```
-node parsePlg.js <PLG path/file> <targetDirectory> <encoding>
+<directory>
+  /import          -- importPlg pulls the plugin file from your Sibelius installation into this directory
+  /build           -- deployPlg deploys the plugin from here
+  /src             -- directory for plugin source .mss files
+  /test            -- directory for test files and resources
+  plgconfig.js     -- project configuration file (see below)
 ```
 
-Encoding is optional (defaults to utf8, for a plugin initially built and edited in Sibelius you'll likely need utf16le. The
-converter writes back to utf8, which works just fine for subsequent import into Sibelius)
+## importPlg
+```
+importPlg [plugin file names]
+```
+Imports plugins from Sibelius plugin directory (specified in config) to the import directory. If file names are
+passed on the command line, import those files, otherwise import the plugin identified in the config file. If none
+is identified in the config file, this will import all plugins in the Sibelius plugin directory.
 
-Writes a .mss file for each function into targetDirectory, and a .msd file for each dialog into a dialog subdirectory.
+## parsePlg
+```
+parsePlg <PLG path/file> <targetDirectory>
+```
 
-Writes GLOBAL.mss, which contains all global data definitions
+Writes a .mss file for each function into targetDirectory, and a .msd file for each dialog into a dialog
+subdirectory. Additionally writes GLOBAL.mss, which contains all global data definitions
 
 Changes the function declaration to Javascript style
 ```javascript
@@ -54,7 +72,7 @@ The parser will write both methods to the file 'util.mss', preserving the module
 
 ## buildPlg
 ```
-node buildPlg.js <directory> <output file>
+buildPlg <directory> <output file>
 ```
 
 Inverse of parsePjg, which combines all the .mss/.msd files in the generated structure pointed to by
@@ -63,7 +81,26 @@ Inverse of parsePjg, which combines all the .mss/.msd files in the generated str
 If you have created the files outside of Sibelius, please ensure that functions close as in the example
 above, with a close brace and a //$end directive.
 
-NB default encoding for plgToMSS is utf8, which Sibelius handles just fine.
+## deployPlg
+```
+deployPlg [plugin file names]
+```
+Deploys plugins from build directory (specified in config) to Sibelius. If file names are passed on the command
+line, deploy those files, otherwise deploy the plugin identified in the config file. If none is identified in the
+config file, this will deploy all plugins in the build directory.
 
+## plgconfig.js
+```javascript
+var config = {
+  plgPath: process.env.HOME + '/Library/Application Support/Avid/Sibelius 7.5/Plugins',
+  plgCategory: 'User',
+  pluginFilename: 'Template.plg',
+  importDir: './import',
+  buildDir: './build',
+  srcDir: './src',
+  testDir: './test'
+};
 
-
+```
+Field names should be self-explanatory. pluginFilename can be deleted if wished. You will likely need to edit it
+to refer to the plugins directory for your Sibelius installation.
