@@ -5,11 +5,9 @@ var fs = require('fs');
 var path = require('path');
 var readline = require('readline');
 var mkdirp = require('mkdirp');
-var iconv = require('iconv-lite');
-var e = require('gumyen');
+var gumyen = require('gumyen');
 
-var OUTPUT_ENCODING = 'utf16le';
-var UTF16LE_BOM = [0xff, 0xfe];
+var writeUTF16 = require('./util').writeUTF16;
 
 function main(args) {
 
@@ -38,7 +36,7 @@ function main(args) {
   mkdirp.sync(outputdir);
   mkdirp.sync(path.join(outputdir, 'dialog'));
 
-  var encoding = e.encodingSync(filename);
+  var encoding = gumyen.encodingSync(filename);
   console.log('Processing: %s (%s)', filename, encoding);
 
   var rd = readline.createInterface({
@@ -119,7 +117,7 @@ function main(args) {
           if (filesWritten[currentModule]) {
             opts.flag = 'a';
           }
-          writeUTF16(filename, data, opts);
+          writeUTF16(currentModule, data, opts);
           filesWritten[currentModule] = true;
           currentModule = '';
         } else {
@@ -135,11 +133,6 @@ function main(args) {
       data += '\n';
     }
   }
-}
-
-function writeUTF16(filename, data, opts) {
-  var buffer = iconv.encode(data, OUTPUT_ENCODING);
-  fs.writeFileSync(filename, Buffer.concat([new Buffer(UTF16LE_BOM), buffer]), opts);
 }
 
 main(process.argv.slice(2));

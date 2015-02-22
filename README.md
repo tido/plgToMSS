@@ -90,8 +90,10 @@ above, with a close brace and a //$end directive.
 deployPlg [plugin file names]
 ```
 Deploys plugins from build directory (specified in config) to Sibelius. If file names are passed on the command
-line, deploy those files, otherwise deploy the plugin identified in the config file. If none is identified in the
-config file, this will deploy all plugins in the build directory.
+line, deploy those files, otherwise deploy the plugin identified in the config file, and additionally a plugin
+named Test<pluginName> if one exists in the build directory . If none is identified in the config file, this will
+deploy all plugins in the build directory.
+
 
 ## plgconfig.js
 ```javascript
@@ -108,3 +110,6 @@ var config = {
 ```
 Field names should be self-explanatory. pluginFilename can be deleted if wished. You will likely need to edit it
 to refer to the plugins directory for your Sibelius installation.
+
+A test framework and assertion plugin is under development - watch this space as we drag Sibelius plugin development
+licking and screaming into the 21st century...

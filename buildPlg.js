@@ -6,11 +6,9 @@ var fs = require('fs');
 var path = require('path');
 var readline = require('readline');
 var async = require('async');
-var iconv=require('iconv-lite');
-var e = require('gumyen');
+var gumyen = require('gumyen');
 
-var OUTPUT_ENCODING = 'utf16le';
-var UTF16LE_BOM = [0xff, 0xfe];
+var writeUTF16 = require('./util').writeUTF16;
 
 function main(args) {
   var directory = args[0];
@@ -27,10 +25,15 @@ function main(args) {
 
   var globals = path.join(directory, 'GLOBALS.mss');
   var dialogDirectory = path.join(directory, 'dialog');
+  var dialogsDir = [];
 
-  var dialogsDir = fs.readdirSync(dialogDirectory);
+  try {
+    dialogsDir = fs.readdirSync(dialogDirectory);
+  } catch (e) {
+    // NOP
+  }
 
-  var funcRegex = /^function\s*(\w+)(\(.*\))\s*\{/;
+  var funcRegex = /function\s*([_a-zA-Z][_a-zA-Z0-9\$]*)(\(.*\))\s*\{/;
   var moduleLineRegex = /^\s*\/\/\$module\(([\w]+\.mss)\)/;
 
   try {
@@ -43,7 +46,7 @@ function main(args) {
     .filter(function(name) { return name.match(/.+\.msd$/)})
     .forEach(function(name) { addFileToOutput(path.join(dialogDirectory, name))});
 
-  dir = dir.filter(function(name) { return name.match(/[a-z].+\.mss$/)});
+  dir = dir.filter(function(name) { return name.match(/.+\.mss$/)});
 
   async.each(dir, function(name, cb) { addMethodFileToOutput(path.join(directory, name), cb)}, end);
 
@@ -55,8 +58,7 @@ function main(args) {
 
   function addFileToOutput(filename) {
     console.log(filename);
-    var encoding = e.encodingSync(filename);
-    var data = fs.readFileSync(filename, {encoding: encoding});
+    var data = gumyen.readFileWithDetectedEncodingSync(filename);
 
     if (data.length) {
       output += data;
@@ -66,7 +68,7 @@ function main(args) {
 
   function addMethodFileToOutput(filename, cb) {
     console.log(filename);
-    var encoding = e.encodingSync(filename);
+    var encoding = gumyen.encodingSync(filename);
     var proposedModuleName = path.basename(filename, '.mss');
 
     var head = '';
@@ -107,11 +109,6 @@ function main(args) {
       cb(false);
     });
   }
-}
-
-function writeUTF16(filename, data, opts) {
-  var buffer = iconv.encode(data, OUTPUT_ENCODING);
-  fs.writeFileSync(filename, Buffer.concat([new Buffer(UTF16LE_BOM), buffer]), opts);
 }
 
 main(process.argv.slice(2));

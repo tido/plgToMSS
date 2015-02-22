@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-function main() {
+function main(pluginFileNames) {
   var fs = require('fs-extra');
   var path = require('path');
 
@@ -11,7 +11,7 @@ function main() {
   var pluginFiles = pluginFileNames && pluginFileNames.length
     ? pluginFileNames
     : config.pluginFilename
-      ? [config.pluginFilename]
+      ? [config.pluginFilename, 'Test' + config.pluginFilename]
       : fs.readdirSync(config.buildDir)
           .filter(function(filename) {return filename.match(/\.plg$/);});
 
@@ -22,10 +22,14 @@ function main() {
   pluginFiles.forEach(function(filename) {
     console.log(filename);
 
-    fs.copySync(path.join(config.buildDir, filename), path.join(destDirectory, filename));
+    var fileToCopy = path.join(config.buildDir, filename);
+    if (fs.existsSync(fileToCopy)) {
+      fs.copySync(fileToCopy, path.join(destDirectory, filename));
+    } else {
+      console.log('(%s not found)', fileToCopy);
+    }
   });
   console.log('done');
 }
 
-
-main();
+main(process.argv.slice(2));
