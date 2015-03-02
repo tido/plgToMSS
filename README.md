@@ -1,5 +1,5 @@
-[sibeditor]: https://github.com/tido/plgToMSS/blob/master/images/sib-plugineditor.jpg
-[sublime]: https://github.com/tido/plgToMSS/blob/master/images/sib-sublime.jpg
+[sibeditor]: https://github.com/tido/plgToMSS/blob/master/images/sib-plugineditor.jpg "Sibelius"
+[sublime]: https://github.com/tido/plgToMSS/blob/master/images/sib-sublime.jpg "Sublime"
 # plgToMSS
 
 A set of node scripts to roundtrip Sibelius plugin development
@@ -10,11 +10,11 @@ file format.
 
 If you're tired of struggling with developing in this world:
 
-[!Sibelius plugin editor][sibeditor]
+![Sibelius plugin editor][sibeditor]
 
 And would like to be able to work like this:
 
-[!Sublime - editing ManuScript!][sublime]
+![Sublime - editing ManuScript!][sublime]
 
 Then plgToMSS is your friend!
 
