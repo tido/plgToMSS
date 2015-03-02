@@ -39,7 +39,8 @@ importPlg [plugin file names]
 ```
 Imports plugins from Sibelius plugin directory (specified in config) to the import directory. If file names are
 passed on the command line, import those files, otherwise import the plugin identified in the config file. If none
-is identified in the config file, this will import all plugins in the Sibelius plugin directory.
+is identified in the config file, this will import all plugins in the Sibelius plugin directory identified in 
+the plgCategory field in your config file.
 
 ## parsePlg
 ```
@@ -47,18 +48,20 @@ parsePlg <PLG path/file> <targetDirectory>
 ```
 
 Writes a .mss file for each function into targetDirectory, and a .msd file for each dialog into a dialog
-subdirectory. Additionally writes GLOBAL.mss, which contains all global data definitions
+subdirectory. Additionally writes GLOBAL.mss, which contains all global data definitions.
 
-Changes the function declaration to Javascript style
+Changes the function declaration to Javascript style:
 ```javascript
 function Initialize () {
     ...
 }  //$end
 ```
 
-Adds end tags for round-tripping
+Also adds end tags for round-tripping. If you're writing your plugin from scratch in your own editing environment,
+don't forget to add these (and a newline after the final //$end, though your editor may automatically add that
+for you).
 
-To move or write several functions in a single file, add a module directive
+To move or write several functions in a single file, add a module directive:
 
 ```javascript
 function reverse (s) {
@@ -72,7 +75,8 @@ function capitalize (s) {
 }  //$end
 ```
 
-The parser will write both methods to the file 'util.mss', preserving the module directives.
+The parser will write both methods to the file 'util.mss', preserving the module directives. If this is absent, each
+function is written to an individual file named after the function.
 
 ## buildPlg
 ```
@@ -83,7 +87,8 @@ Inverse of parsePjg, which combines all the .mss/.msd files in the generated str
 <directory> and writes an output file which can then be copied into the Sibelius plugins location
 
 If you have created the files outside of Sibelius, please ensure that functions close as in the example
-above, with a close brace and a //$end directive.
+above, with a close brace and a //$end directive, and if you want to round-trip development, add //$module() 
+directives as described.
 
 ## deployPlg
 ```
