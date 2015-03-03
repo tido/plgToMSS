@@ -9,17 +9,25 @@ function main() {
 
   var configFile = path.join(cwd, 'plgconfig.js');
   var configTemplate = path.join(__dirname, 'template/plgconfig.js');
+  var templateSrc = path.join(__dirname, 'template/src');
+  var templateTest = path.join(__dirname, 'template/test');
 
   fs.copySync(configTemplate, configFile);
   var config = require(configFile);
 
   fs.ensureDirSync(config.importDir);
   fs.ensureDirSync(config.buildDir);
+
   fs.ensureDirSync(config.srcDir);
+  fs.copySync(templateSrc, config.srcDir);
+
   fs.ensureDirSync(config.testDir);
+  fs.copySync(templateTest, config.testDir);
 
   console.log('Initialised %s for plugin development!', cwd);
   console.log('Sources in %s', config.srcDir);
+  console.log('Tests in %s', config.testDir);
+  console.log('Imports in %s', config.importDir);
   console.log('Built plugins in %s', config.buildDir);
 
   if (!fs.existsSync(config.plgPath)) {

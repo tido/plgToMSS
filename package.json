@@ -1,8 +1,7 @@
 {
   "name": "plgToMSS",
-  "version": "1.0.1",
-  "description": "Split a Sibelius plugin file into separate functions, making them look a bit like JavaScript",
-  "main": "parsePlg.js",
+  "version": "1.0.2",
+  "description": "Workflow tools for Sibelius ManuScript plugin development",
   "directories": {
     "test": "test"
   },
