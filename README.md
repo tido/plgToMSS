@@ -1,3 +1,5 @@
+[sibeditor]: https://github.com/tido/plgToMSS/blob/master/images/sib-plugineditor.jpg "Sibelius"
+[sublime]: https://github.com/tido/plgToMSS/blob/master/images/sib-sublime.jpg "Sublime"
 # plgToMSS
 
 A set of node scripts to roundtrip Sibelius plugin development
@@ -5,6 +7,16 @@ between a sensible world (small text files, which can be edited,
 in a tool of your choice, with nice syntax highlighting, and which
 can be source-controlled separately) and the monolithic Sibelius .plg
 file format.
+
+If you're tired of struggling with developing in this world:
+
+![Sibelius plugin editor][sibeditor]
+
+And would like to be able to work like this:
+
+![Sublime - editing ManuScript!][sublime]
+
+Then plgToMSS is your friend!
 
 NB Currently set up and documented for Mac deployment. If anyone out there
 would like to form and update for Windows, please be my guest!
