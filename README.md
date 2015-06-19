@@ -19,7 +19,7 @@ And would like to be able to work like this:
 Then plgToMSS is your friend!
 
 NB Currently set up and documented for Mac deployment. If anyone out there
-would like to form and update for Windows, please be my guest!
+would like to fork and update for Windows, please be my guest!
 
 ## Install
 
