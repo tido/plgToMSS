@@ -17,7 +17,7 @@ function main(args) {
   var level = 0;
   var globals = [];
 
-  var functionRegex = /^\s+(\w+)\s+"(\(.*\))\s+\{/;
+  var functionRegex = /^\s*(\w+)\s+"(\(.*\))\s+\{/;
   var endFunctionRegex = /^(.*)}"$/;
   var moduleLineRegex = /^\s*\/\/\$module\(([\w.]+)\)/;
 
@@ -80,8 +80,13 @@ function main(args) {
       return;
     }
 
+    if (line[0] === '\uffef' || line[0] === '\uffef') {
+      line = line.substring(1);
+    }
+    line == line.trim();
+
     if (line !== '}' && line !== '{' && line !== '\ufeff' && line !== '\uffef' && line.length > 0) {
-      globals.push(line.trim());
+      globals.push(line);
     }
   }
 
