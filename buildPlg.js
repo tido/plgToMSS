@@ -84,7 +84,7 @@ function main(args) {
     rd.on('line', function(line) {
       var func = funcRegex.exec(line);
       if (func) {
-        var mssFuncLine = func[1] + ' "' + func[2] + ' {\n';
+        var mssFuncLine = '\t' + func[1] + ' "' + func[2] + ' {\n';
         console.log('function: ' + func[1]);
         head = mssFuncLine;
         if (func[1] !== proposedModuleName) {

@@ -81,7 +81,7 @@ function main(args) {
     }
 
     if (line !== '}' && line !== '{' && line !== '\ufeff' && line !== '\uffef' && line.length > 0) {
-      globals.push(line);
+      globals.push(line.trim());
     }
   }
 
@@ -111,7 +111,7 @@ function main(args) {
 
       var isEndFunc = endFunctionRegex.exec(line);
       if (isEndFunc) {
-        data += isEndFunc[1] + '\n}  //$end\n';
+        data += isEndFunc[1] + '} //$end\n\n';
         if (currentModule) {
           var opts = {encoding: encoding};
           if (filesWritten[currentModule]) {
