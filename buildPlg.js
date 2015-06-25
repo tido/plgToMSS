@@ -2,8 +2,6 @@
 
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
 var readline = require('readline');
 var async = require('async');
 var gumyen = require('gumyen');
@@ -11,11 +9,29 @@ var gumyen = require('gumyen');
 var writeUTF16 = require('./util').writeUTF16;
 
 function main(args) {
-  var directory = args[0];
-  var outputFileName = args[1];
+  var fs = require('fs-extra');
+  var path = require('path');
+  var config = require(path.join(process.cwd(), 'plgconfig'));
 
-  if (!directory || !outputFileName) {
-    console.log("Usage: buildPlg directory plg-filename" );
+  var directory;
+  var pluginFilename;
+
+  if (args.length === 0) {
+    directory = config.srcDir;
+    pluginFilename = config.pluginFilename;
+  } else if (args.length === 1 && args[0] === 'test') {
+    directory = config.testDir;
+    pluginFilename = 'Test' + config.pluginFilename;
+  } else {
+    directory = args[0];
+    pluginFilename = args[1];
+  }
+
+  if (!directory || !pluginFilename) {
+    console.log("Usage: buildPlg [directory plg-filename | test]" );
+    console.log("No args - builds configured plugin" );
+    console.log("Arg is 'test' - builds configured test plugin" );
+    console.log("Plugin file is written to configured build directory");
     process.exit(1);
   }
 
@@ -52,13 +68,13 @@ function main(args) {
 
   function end() {
     output += '}\n';
-    writeUTF16(outputFileName, output);
-    console.log('written plugin code to ' + outputFileName);
+    writeUTF16(path.join(config.buildDir, pluginFilename), output);
+    console.log('written plugin code to ' + pluginFilename);
   }
 
-  function addFileToOutput(filename) {
-    console.log(filename);
-    var data = gumyen.readFileWithDetectedEncodingSync(filename);
+  function addFileToOutput(mssFilename) {
+    console.log(mssFilename);
+    var data = gumyen.readFileWithDetectedEncodingSync(mssFilename);
 
     if (data.length) {
       output += data;
@@ -66,17 +82,17 @@ function main(args) {
     }
   }
 
-  function addMethodFileToOutput(filename, cb) {
-    console.log(filename);
-    var encoding = gumyen.encodingSync(filename);
-    var proposedModuleName = path.basename(filename, '.mss');
+  function addMethodFileToOutput(mssFilename, cb) {
+    console.log(mssFilename);
+    var encoding = gumyen.encodingSync(mssFilename);
+    var proposedModuleName = path.basename(mssFilename, '.mss');
 
     var head = '';
     var moduleName = '';
     var module = '';
     var body = '';
     var rd = readline.createInterface({
-      input: fs.createReadStream(filename, {encoding: encoding}),
+      input: fs.createReadStream(mssFilename, {encoding: encoding}),
       output: process.stdout,
       terminal: false
     });

@@ -10,6 +10,32 @@ var gumyen = require('gumyen');
 var writeUTF16 = require('./util').writeUTF16;
 
 function main(args) {
+  var fs = require('fs-extra');
+  var path = require('path');
+  var config = require(path.join(process.cwd(), 'plgconfig'));
+
+  var directory;
+  var filename;
+
+  if (args.length === 0) {
+    directory = config.srcDir;
+    filename = config.pluginFilename;
+  } else if (args.length === 1 && args[0] === 'test') {
+    directory = config.testDir;
+    filename = 'Test' + config.pluginFilename;
+  } else {
+    directory = args[0];
+    filename = args[1];
+  }
+
+
+  if (!directory || !filename) {
+    console.log("Usage: parsePlg [plugin-filename output-directory| test]" );
+    console.log("No args - parses configured plugin" );
+    console.log("Arg is 'test' - parses configured test plugin" );
+    console.log("Plugin file must be in configured import directory");
+    process.exit(1);
+  }
 
   var data = '';
   var currentModule = '';
@@ -25,16 +51,10 @@ function main(args) {
   var startDialogSegmentRegex = /^\s*\{/;
   var endDialogSegmentRegex = /^\s*}/;
 
-  var filename = args[0];
-  var outputdir = args[1];
+  filename = path.join(config.importDir, filename);
 
-  if (!filename || !outputdir) {
-    console.log("Usage: parsePlg plg-filename output-dir" );
-    process.exit(1);
-  }
-
-  mkdirp.sync(outputdir);
-  mkdirp.sync(path.join(outputdir, 'dialog'));
+  mkdirp.sync(directory);
+  mkdirp.sync(path.join(directory, 'dialog'));
 
   var encoding = gumyen.encodingSync(filename);
   console.log('Processing: %s (%s)', filename, encoding);
@@ -54,11 +74,11 @@ function main(args) {
 
   rd.on('close', function() {
     writeGlobals();
-    console.log('Finished: written to ' + outputdir);
+    console.log('Finished: written to ' + directory);
   });
 
   function writeGlobals() {
-    writeUTF16(path.join(outputdir, 'GLOBALS.mss'), globals.join('\n'));
+    writeUTF16(path.join(directory, 'GLOBALS.mss'), globals.join('\n'));
   }
 
   function processLine(line) {
@@ -66,7 +86,7 @@ function main(args) {
     if (func) {
       console.log('function ' + func[1] + func[2]);
       data = 'function ' + func[1] + func[2] + ' ' + '{\n';
-      var filename = path.join(outputdir, func[1] + '.mss');
+      var filename = path.join(directory, func[1] + '.mss');
       processFn = processFunctionLineFunc(filename);
       return;
     }
@@ -76,7 +96,7 @@ function main(args) {
       console.log('dialog ' + dialog[1]);
       data = line;
       data += '\n';
-      processFn = processDialogLineFunc(path.join(outputdir, 'dialog', dialog[1] + '.msd'));
+      processFn = processDialogLineFunc(path.join(directory, 'dialog', dialog[1] + '.msd'));
       return;
     }
 
@@ -108,7 +128,7 @@ function main(args) {
     return function (line) {
       var isModuleLine = moduleLineRegex.exec(line);
       if (isModuleLine) {
-        currentModule = path.join(outputdir, isModuleLine[1]);
+        currentModule = path.join(directory, isModuleLine[1]);
         data += line;
         data += '\n';
         return;
@@ -116,7 +136,11 @@ function main(args) {
 
       var isEndFunc = endFunctionRegex.exec(line);
       if (isEndFunc) {
-        data += isEndFunc[1] + '} //$end\n\n';
+        var ending = isEndFunc[1];
+        if (ending.length) {
+          ending += '\n';
+        }
+        data += ending + '} //$end\n\n';
         if (currentModule) {
           var opts = {encoding: encoding};
           if (filesWritten[currentModule]) {
