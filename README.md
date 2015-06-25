@@ -19,7 +19,7 @@ And would like to be able to work like this:
 Then plgToMSS is your friend!
 
 NB Currently set up and documented for Mac deployment. If anyone out there
-would like to form and update for Windows, please be my guest!
+would like to fork and update for Windows, please be my guest!
 
 ## Install
 
@@ -129,4 +129,4 @@ Field names should be self-explanatory. pluginFilename can be deleted if wished.
 to refer to the plugins directory for your Sibelius installation.
 
 A test framework and assertion plugin is under development - watch this space as we drag Sibelius plugin development
-licking and screaming into the 21st century...
+kicking and screaming into the 21st century...
