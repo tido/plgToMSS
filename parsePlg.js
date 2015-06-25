@@ -19,15 +19,14 @@ function main(args) {
 
   if (args.length === 0) {
     directory = config.srcDir;
-    filename = config.pluginFilename;
+    filename = path.join(config.importDir, config.pluginFilename);
   } else if (args.length === 1 && args[0] === 'test') {
     directory = config.testDir;
-    filename = 'Test' + config.pluginFilename;
+    filename = path.join(config.importDir, 'Test' + config.pluginFilename);
   } else {
-    directory = args[0];
-    filename = args[1];
+    filename = args[0];
+    directory = args[1];
   }
-
 
   if (!directory || !filename) {
     console.log("Usage: parsePlg [plugin-filename output-directory| test]" );
@@ -50,8 +49,6 @@ function main(args) {
   var dialogRegex = /^\s*(\w+)\s+"Dialog"\s*$/;
   var startDialogSegmentRegex = /^\s*\{/;
   var endDialogSegmentRegex = /^\s*}/;
-
-  filename = path.join(config.importDir, filename);
 
   mkdirp.sync(directory);
   mkdirp.sync(path.join(directory, 'dialog'));

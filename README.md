@@ -56,11 +56,16 @@ the plgCategory field in your config file.
 
 ## parsePlg
 ```
-parsePlg <PLG path/file> <targetDirectory>
+parsePlg [<PLG path/file> <targetDirectory> | test | ]
 ```
 
 Writes a .mss file for each function into targetDirectory, and a .msd file for each dialog into a dialog
 subdirectory. Additionally writes GLOBAL.mss, which contains all global data definitions.
+
+If no arguments are given, uses the configured importDir and pluginFilename from the config file as the source of the
+import, and the configured srcDir for the output. If the single argument 'test' is given, uses the configured importDir
+and the filename Test<pluginFilename> (concatenating 'Test' and the configured pluginFilename) as the source, and the
+configured testDir for the output.
 
 Changes the function declaration to Javascript style:
 ```javascript
@@ -92,11 +97,15 @@ function is written to an individual file named after the function.
 
 ## buildPlg
 ```
-buildPlg <directory> <output file>
+buildPlg [<directory> <output file> | test | ]
 ```
 
 Inverse of parsePjg, which combines all the .mss/.msd files in the generated structure pointed to by
-<directory> and writes an output file which can then be copied into the Sibelius plugins location
+<directory> and writes an output file which can then be copied into the Sibelius plugins location.
+
+If no arguments are given, builds from the configured srcDir and writes to the configured plgFilename in the buildDir
+directory. If the single argument 'test' is given, builds from the configured testDir and writes to
+Test<plgFilename> in the buildDir.
 
 If you have created the files outside of Sibelius, please ensure that functions close as in the example
 above, with a close brace and a //$end directive, and if you want to round-trip development, add //$module() 
