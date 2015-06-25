@@ -137,5 +137,5 @@ var config = {
 Field names should be self-explanatory. pluginFilename can be deleted if wished. You will likely need to edit it
 to refer to the plugins directory for your Sibelius installation.
 
-A test framework and assertion plugin is under development - watch this space as we drag Sibelius plugin development
-kicking and screaming into the 21st century...
+## Unit testing
+You'll find a unit testing framework for ManuScript at [sib-test](https://github.com/tido/sib-test)
