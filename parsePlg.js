@@ -97,7 +97,7 @@ function main(args) {
       return;
     }
 
-    if (line[0] === '\uffef' || line[0] === '\uffef') {
+    if (line[0] === '\uffef' || line[0] === '\ufeff') {
       line = line.substring(1);
     }
     line == line.trim();
