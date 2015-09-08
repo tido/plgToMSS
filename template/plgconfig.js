@@ -7,7 +7,7 @@ var config = {
   buildDir:       './build',
   srcDir:         './src',
   testDir:        './test',
-  libDir:         './lib',
+  libDir:         './lib'
 };
 
 module.exports = config;

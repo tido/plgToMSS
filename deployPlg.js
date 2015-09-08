@@ -32,12 +32,12 @@ function main(pluginFileNames) {
   
   if (config.linkLibraries) {
     config.linkLibraries.forEach(function(filename) {
-    console.log('linking %s', filename);
+    console.log('copying linked library %s', filename);
     var fileToCopy = path.join(config.libDir, filename);
     if (fs.existsSync(fileToCopy)) {
       fs.copySync(fileToCopy, path.join(destDirectory, filename));
     } else {
-      console.log('%s could not be linked', fileToCopy);
+      console.log('library %s could not be copied', fileToCopy);
     }
   });
 }

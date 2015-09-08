@@ -127,15 +127,18 @@ var config = {
   plgPath: process.env.HOME + '/Library/Application Support/Avid/Sibelius 7.5/Plugins',
   plgCategory: 'User',
   pluginFilename: 'Template.plg',
+  linkLibraries: ['Test.plg'],
   importDir: './import',
   buildDir: './build',
   srcDir: './src',
-  testDir: './test'
+  testDir: './test',
+  libDir:  './lib'
 };
 
 ```
 Field names should be self-explanatory. pluginFilename can be deleted if wished. You will likely need to edit it
-to refer to the plugins directory for your Sibelius installation.
+to refer to the plugins directory for your Sibelius installation. linkLibraries is a list of plugins to copy from
+a shared library directory (identified by libDir) when deployPlg is run.
 
 ## Unit testing
 You'll find a unit testing framework for ManuScript at [sib-test](https://github.com/tido/sib-test)
