@@ -49,7 +49,7 @@ function main(args) {
     // NOP
   }
 
-  var funcRegex = /function\s*([_a-zA-Z][_a-zA-Z0-9\$]*)(\(.*\))\s*\{/;
+  var funcRegex = /function\s*([_a-zA-Z][_a-zA-Z0-9\$]*)\s*(\(.*\))\s*\{?/;
   var moduleLineRegex = /^\s*\/\/\$module\(([\w]+\.mss)\)/;
 
   try {
