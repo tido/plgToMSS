@@ -35,41 +35,45 @@ function main(args) {
     process.exit(1);
   }
 
-  var dir = fs.readdirSync(directory);
-
   var output = '{\n';
 
-  var globals = path.join(directory, 'GLOBALS.mss');
-  var dialogDirectory = path.join(directory, 'dialog');
-  var dialogsDir = [];
-
   try {
-    dialogsDir = fs.readdirSync(dialogDirectory);
-  } catch (e) {
-    // NOP
-  }
-
-  var funcRegex = /function\s*([_a-zA-Z][_a-zA-Z0-9\$]*)(\(.*\))\s*\{/;
-  var moduleLineRegex = /^\s*\/\/\$module\(([\w]+\.mss)\)/;
-
-  try {
+    var globals = path.join(directory, 'GLOBALS.mss');
     addFileToOutput(globals);
   } catch (e) {
     // NOP
   }
 
-  dialogsDir
-    .filter(function(name) { return name.match(/.+\.msd$/)})
-    .forEach(function(name) { addFileToOutput(path.join(dialogDirectory, name))});
+  try {
+    var dialogDirectory = path.join(directory, 'dialog');
+    var dialogsDir = fs.readdirSync(dialogDirectory);
+    dialogsDir
+      .filter(function(name) { return name.match(/.+\.msd$/)})
+      .forEach(function(name) { addFileToOutput(path.join(dialogDirectory, name))});
+  } catch (e) {
+    // NOP
+  }
 
-  dir = dir.filter(function(name) { return name.match(/.+\.mss$/)});
+  buildFromDir(directory, end);
 
-  async.each(dir, function(name, cb) { addMethodFileToOutput(path.join(directory, name), cb)}, end);
+  function buildFromDir(directory, cb) {
+    var dir = fs.readdirSync(directory);
+    var fullPaths = dir.map(function(name) {
+      return path.join(directory, name)
+    });
 
-  function end() {
-    output += '}\n';
-    writeUTF16(path.join(config.buildDir, pluginFilename), output);
-    console.log('written plugin code to ' + pluginFilename);
+    var mssFiles = fullPaths.filter(function(path) { return path.match(/.+\.mss$/)});
+    async.each(mssFiles, function(path, cb) { addMethodFileToOutput(path, cb)}, doSubdirs);
+
+    function doSubdirs(err) {
+      var subdirs = fullPaths.filter(function(path) {
+        var stat = fs.statSync(path);
+        return stat.isDirectory();
+      });
+
+      async.each(subdirs, buildFromDir, cb);
+    }
+
   }
 
   function addFileToOutput(mssFilename) {
@@ -82,11 +86,27 @@ function main(args) {
     }
   }
 
-  function addMethodFileToOutput(mssFilename, cb) {
-    console.log(mssFilename);
-    var encoding = gumyen.encodingSync(mssFilename);
-    var proposedModuleName = path.basename(mssFilename, '.mss');
+  function end() {
+    output += '}\n';
+    writeUTF16(path.join(config.buildDir, pluginFilename), output);
+    console.log('written plugin code to ' + pluginFilename);
+  }
 
+  var funcRegex = /function\s*([_a-zA-Z][_a-zA-Z0-9$]*)(\(.*\))\s*\{/;
+  var moduleLineRegex = /^\s*\/\/\$module\(([\w/]+\.mss)\)/;
+
+  function proposedFromPath(mssFilename) {
+    var parts = mssFilename.split('/');
+    var dirParts = directory.split('/');
+    return parts.slice(dirParts.length).join('/');
+  }
+
+  function addMethodFileToOutput(mssFilename, cb) {
+
+    var proposedModuleName = proposedFromPath(mssFilename);
+    console.log(mssFilename);
+
+    var encoding = gumyen.encodingSync(mssFilename);
     var head = '';
     var moduleName = '';
     var module = '';

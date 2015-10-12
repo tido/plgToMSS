@@ -38,13 +38,14 @@ function main(args) {
 
   var data = '';
   var currentModule = '';
+  var currentModulePath = '';
   var filesWritten = {};
   var level = 0;
   var globals = [];
 
   var functionRegex = /^\s*(\w+)\s+"(\(.*\))\s+\{/;
   var endFunctionRegex = /^(.*)}"$/;
-  var moduleLineRegex = /^\s*\/\/\$module\(([\w.]+)\)/;
+  var moduleLineRegex = /^\s*\/\/\$module\(([\w./]+)\)/;
 
   var dialogRegex = /^\s*(\w+)\s+"Dialog"\s*$/;
   var startDialogSegmentRegex = /^\s*\{/;
@@ -125,6 +126,7 @@ function main(args) {
     return function (line) {
       var isModuleLine = moduleLineRegex.exec(line);
       if (isModuleLine) {
+        currentModulePath = path.join(directory, path.dirname(isModuleLine[1]));
         currentModule = path.join(directory, isModuleLine[1]);
         data += line;
         data += '\n';
@@ -143,6 +145,7 @@ function main(args) {
           if (filesWritten[currentModule]) {
             opts.flag = 'a';
           }
+          mkdirp(currentModulePath);
           writeUTF16(currentModule, data, opts);
           filesWritten[currentModule] = true;
           currentModule = '';
