@@ -95,13 +95,23 @@ function capitalize (s) {
 The parser will write both methods to the file 'util.mss', preserving the module directives. If this is absent, each
 function is written to an individual file named after the function.
 
+You can add subdirectories to the module paths, and correspondingly write code in subdirectories:
+
+```javascript
+function CreateProcessingContext () {
+    //$module(context/Processing.mss)
+    ...
+}  //$end
+```
+
 ## buildPlg
 ```
 buildPlg [<directory> <output file> | test | ]
 ```
 
 Inverse of parsePjg, which combines all the .mss/.msd files in the generated structure pointed to by
-<directory> and writes an output file which can then be copied into the Sibelius plugins location.
+<directory> and writes an output file which can then be copied into the Sibelius plugins location. The
+tool combines all .mss files in the named directory and all its subdirectories.
 
 If no arguments are given, builds from the configured srcDir and writes to the configured plgFilename in the buildDir
 directory. If the single argument 'test' is given, builds from the configured testDir and writes to
