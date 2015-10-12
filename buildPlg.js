@@ -35,6 +35,12 @@ function main(args) {
     process.exit(1);
   }
 
+  var dirParts = directory.split('/');
+  var fullPathDirPfxLength = dirParts.length;
+  if (dirParts[0] === '' || dirParts[0] === '.') {
+    fullPathDirPfxLength = fullPathDirPfxLength - 1;
+  }
+
   var output = '{\n';
 
   try {
@@ -77,7 +83,6 @@ function main(args) {
   }
 
   function addFileToOutput(mssFilename) {
-    console.log(mssFilename);
     var data = gumyen.readFileWithDetectedEncodingSync(mssFilename);
 
     if (data.length) {
@@ -97,14 +102,13 @@ function main(args) {
 
   function proposedFromPath(mssFilename) {
     var parts = mssFilename.split('/');
-    var dirParts = directory.split('/');
-    return parts.slice(dirParts.length).join('/');
+    console.log(parts);
+    return parts.slice(fullPathDirPfxLength).join('/');
   }
 
   function addMethodFileToOutput(mssFilename, cb) {
 
     var proposedModuleName = proposedFromPath(mssFilename);
-    console.log(mssFilename);
 
     var encoding = gumyen.encodingSync(mssFilename);
     var head = '';
@@ -124,7 +128,7 @@ function main(args) {
         console.log('function: ' + func[1]);
         head = mssFuncLine;
         if (func[1] !== proposedModuleName) {
-          module = '//$module(' + proposedModuleName + '.mss)\n'
+          module = '//$module(' + proposedModuleName + ')\n'
         }
       } else if(line.match(/^}\s*\/\/\$end$/)) {
         body = body + '}"\n';
