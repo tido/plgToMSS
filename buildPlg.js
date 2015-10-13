@@ -102,7 +102,6 @@ function main(args) {
 
   function proposedFromPath(mssFilename) {
     var parts = mssFilename.split('/');
-    console.log(parts);
     return parts.slice(fullPathDirPfxLength).join('/');
   }
 
@@ -130,7 +129,7 @@ function main(args) {
         if (func[1] !== proposedModuleName) {
           module = '//$module(' + proposedModuleName + ')\n'
         }
-      } else if(line.match(/^}\s*\/\/\$end$/)) {
+      } else if (line.match(/^}\s*\/\/\$end$/)) {
         body = body + '}"\n';
         output += head;
         if (module.length) output += module;
