@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
 var readline = require('readline');
 var mkdirp = require('mkdirp');
 var gumyen = require('gumyen');
@@ -16,6 +14,7 @@ function main(args) {
 
   var directory;
   var filename;
+  var dialogsOnly = false;
 
   if (args.length === 0) {
     directory = config.srcDir;
@@ -23,13 +22,17 @@ function main(args) {
   } else if (args.length === 1 && args[0] === 'test') {
     directory = config.testDir;
     filename = path.join(config.importDir, 'Test' + config.pluginFilename);
+  } else if (args.length === 1 && args[0] === 'dialogs') {
+    directory = config.srcDir;
+    filename = path.join(config.importDir, config.pluginFilename);
+    dialogsOnly = true;
   } else {
     filename = args[0];
     directory = args[1];
   }
 
   if (!directory || !filename) {
-    console.log("Usage: parsePlg [plugin-filename output-directory| test]" );
+    console.log("Usage: parsePlg [plugin-filename output-directory | test | dialogs ]" );
     console.log("No args - parses configured plugin" );
     console.log("Arg is 'test' - parses configured test plugin" );
     console.log("Plugin file must be in configured import directory");
@@ -71,7 +74,10 @@ function main(args) {
   });
 
   rd.on('close', function() {
-    writeGlobals();
+    if (!dialogsOnly) {
+      writeGlobals();
+    }
+
     console.log('Finished: written to ' + directory);
   });
 
@@ -101,7 +107,7 @@ function main(args) {
     if (line[0] === '\uffef' || line[0] === '\ufeff') {
       line = line.substring(1);
     }
-    line == line.trim();
+    line = line.trim();
 
     if (line !== '}' && line !== '{' && line !== '\ufeff' && line !== '\uffef' && line.length > 0) {
       globals.push(line);
@@ -124,6 +130,9 @@ function main(args) {
 
   function processFunctionLineFunc(filename) {
     return function (line) {
+      if (dialogsOnly) {
+        return;
+      }
       var isModuleLine = moduleLineRegex.exec(line);
       if (isModuleLine) {
         currentModulePath = path.join(directory, path.dirname(isModuleLine[1]));

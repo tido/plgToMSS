@@ -56,7 +56,7 @@ the plgCategory field in your config file.
 
 ## parsePlg
 ```
-parsePlg [<PLG path/file> <targetDirectory> | test | ]
+parsePlg [<PLG path/file> <targetDirectory> | test | dialogs ]
 ```
 
 Writes a .mss file for each function into targetDirectory, and a .msd file for each dialog into a dialog
@@ -65,7 +65,9 @@ subdirectory. Additionally writes GLOBAL.mss, which contains all global data def
 If no arguments are given, uses the configured importDir and pluginFilename from the config file as the source of the
 import, and the configured srcDir for the output. If the single argument 'test' is given, uses the configured importDir
 and the filename Test<pluginFilename> (concatenating 'Test' and the configured pluginFilename) as the source, and the
-configured testDir for the output.
+configured testDir for the output. If the single argument 'dialogs' is given, the plugin is parsed but only the dialog
+source fiels are written (useful for fixing up/designing dialogs in Sibelius then importing without changing any of the
+manuscript code source files, though you need to remember to run importDlg first)'
 
 Changes the function declaration to Javascript style:
 ```javascript
