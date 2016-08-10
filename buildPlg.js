@@ -97,8 +97,8 @@ function main(args) {
     console.log('written plugin code to ' + pluginFilename);
   }
 
-  var funcRegex = /function\s*([_a-zA-Z][_a-zA-Z0-9$]*)(\(.*\))\s*\{/;
-  var moduleLineRegex = /^\s*\/\/\$module\(([\w/]+\.mss)\)/;
+  var funcRegex = /function\s*([_a-zA-Z][_a-zA-Z0-9$]*)\s*(\(.*\))\s*\{/;
+  var moduleLineRegex = /\s*\/\/\$module\(([\w/]+\.mss)\)/;
 
   function proposedFromPath(mssFilename) {
     var parts = mssFilename.split('/');
@@ -129,7 +129,7 @@ function main(args) {
         if (func[1] !== proposedModuleName) {
           module = '//$module(' + proposedModuleName + ')\n'
         }
-      } else if (line.match(/^}\s*\/\/\$end$/)) {
+      } else if (line.match(/^}\s*\/\/\$end/)) {
         body = body + '}"\n';
         output += head;
         if (module.length) output += module;
